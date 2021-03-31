@@ -1397,6 +1397,34 @@ public class ModelUtils {
         return false;
     }
 
+    public static List<String> getAllTraitNames(ComposedSchema composedSchema, Map<String, Schema> allSchemas) {
+        List<Schema> interfaces = composedSchema.getAllOf();
+        List<String> names = new ArrayList<String>();
+        if (interfaces != null && !interfaces.isEmpty()) {
+            for (Schema schema : interfaces) {
+                // get the actual schema
+                if (StringUtils.isNotEmpty(schema.get$ref())) {
+                    String ifaceName = getSimpleRef(schema.get$ref());
+                    Schema s = allSchemas.get(ifaceName);
+                    if (shouldGenerateTrait(s)) {
+                        // discriminator.propertyName is used
+                        names.add(ifaceName);
+                        if (s instanceof ComposedSchema) {
+                            names.addAll(getAllTraitNames((ComposedSchema) s, allSchemas));
+                        }
+                    }
+                }
+            }
+        }
+        return names;
+    }
+
+    public static boolean shouldGenerateTrait(Schema schema) {
+        return schema.getExtensions() != null &&
+                schema.getExtensions().get("x-trait") != null &&
+                Boolean.parseBoolean(schema.getExtensions().get("x-trait").toString());
+    }
+
     /**
      * Return true if the 'nullable' attribute is set to true in the schema, i.e. if the value
      * of the property can be the null value.

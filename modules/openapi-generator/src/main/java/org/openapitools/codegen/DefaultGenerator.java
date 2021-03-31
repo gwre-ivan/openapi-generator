@@ -491,10 +491,20 @@ public class DefaultGenerator implements Generator {
 
                 Map<String, Schema> schemaMap = new HashMap<>();
                 schemaMap.put(name, schema);
-                Map<String, Object> models = processModels(config, schemaMap);
+                Map<String, Object> models = processModels(config, false, schemaMap);
                 models.put("classname", config.toModelName(name));
                 models.putAll(config.additionalProperties());
                 allProcessedModels.put(name, models);
+
+                // Generate a separate "trait" model if necessary
+                if (ModelUtils.shouldGenerateTrait(schema)) {
+                    String traitName = name + "Trait";
+                    Map<String, Object> traitModels = processModels(config, true, Collections.singletonMap(traitName, schema));
+                    traitModels.put("classname", config.toModelName(traitName));
+                    traitModels.putAll(config.additionalProperties());
+                    allProcessedModels.put(traitName, traitModels);
+                }
+
             } catch (Exception e) {
                 throw new RuntimeException("Could not process model '" + name + "'" + ".Please make sure that your schema is correct!", e);
             }
@@ -1238,7 +1248,7 @@ public class DefaultGenerator implements Generator {
         return result;
      }
 
-    private Map<String, Object> processModels(CodegenConfig config, Map<String, Schema> definitions) {
+    private Map<String, Object> processModels(CodegenConfig config, boolean isTrait, Map<String, Schema> definitions) {
         Map<String, Object> objs = new HashMap<>();
         objs.put("package", config.modelPackage());
         List<Object> models = new ArrayList<>();
@@ -1248,6 +1258,11 @@ public class DefaultGenerator implements Generator {
             if (schema == null)
                 throw new RuntimeException("schema cannot be null in processModels");
             CodegenModel cm = config.fromModel(key, schema);
+            cm.isTrait = isTrait;
+            if (!isTrait && ModelUtils.shouldGenerateTrait(schema)) {
+                // Model class, but we also generating trait for it -- only implement that one single trait
+                cm.inheritedTraits = Collections.singletonList(key);
+            }
             Map<String, Object> mo = new HashMap<>();
             mo.put("model", cm);
             mo.put("importPath", config.toModelImport(cm.classname));

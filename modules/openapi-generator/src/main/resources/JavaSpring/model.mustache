@@ -36,8 +36,13 @@ import org.springframework.hateoas.RepresentationModel;
 {{#isEnum}}
 {{>enumOuterClass}}
 {{/isEnum}}
+{{#isTrait}}
+{{>trait}}
+{{/isTrait}}
 {{^isEnum}}
+{{^isTrait}}
 {{>pojo}}
+{{/isTrait}}
 {{/isEnum}}
 {{/model}}
 {{/models}}

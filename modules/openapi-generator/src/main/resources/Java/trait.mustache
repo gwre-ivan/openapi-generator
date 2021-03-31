@@ -1,0 +1,41 @@
+/**
+* {{#description}}{{.}}{{/description}}{{^description}}{{classname}}{{/description}}
+*/
+public interface {{classname}} {{#vendorExtensions.x-implements}}{{#-first}}extends {{{.}}}{{/-first}}{{^-first}}, {{{.}}}{{/-first}}{{#-last}} {{/-last}}{{/vendorExtensions.x-implements}}{
+{{#vars}}
+
+    {{^isReadOnly}}
+        public {{classname}} {{name}}({{{datatypeWithEnum}}} {{name}});
+        {{#isArray}}
+
+            public {{classname}} add{{nameInCamelCase}}Item({{{items.datatypeWithEnum}}} {{name}}Item);
+        {{/isArray}}
+        {{#isMap}}
+
+            public {{classname}} put{{nameInCamelCase}}Item(String key, {{{items.datatypeWithEnum}}} {{name}}Item);
+        {{/isMap}}
+
+    {{/isReadOnly}}
+    /**
+    {{#description}}
+        * {{description}}
+    {{/description}}
+    {{^description}}
+        * Get {{name}}
+    {{/description}}
+    {{#minimum}}
+        * minimum: {{minimum}}
+    {{/minimum}}
+    {{#maximum}}
+        * maximum: {{maximum}}
+    {{/maximum}}
+    * @return {{name}}
+    **/
+    public {{{datatypeWithEnum}}} {{getter}}();
+
+    {{^isReadOnly}}
+        public void {{setter}}({{{datatypeWithEnum}}} {{name}});
+    {{/isReadOnly}}
+
+{{/vars}}
+}

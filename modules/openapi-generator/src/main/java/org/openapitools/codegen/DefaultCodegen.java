@@ -232,6 +232,7 @@ public class DefaultCodegen implements CodegenConfig {
     // whether or not the oneOf imports machinery should add oneOf interfaces as imports in implementing classes
     protected boolean addOneOfInterfaceImports = false;
     protected List<CodegenModel> addOneOfInterfaces = new ArrayList<CodegenModel>();
+    protected List<CodegenModel> traits = new ArrayList<CodegenModel>();
 
     // flag to indicate whether to only update files whose contents have changed
     protected boolean enableMinimalUpdate = false;
@@ -2383,6 +2384,8 @@ public class DefaultCodegen implements CodegenConfig {
                     }
                 }
             }
+
+            m.inheritedTraits = ModelUtils.getAllTraitNames(composed, allDefinitions);
 
             // interfaces (schemas defined in allOf, anyOf, oneOf)
             List<Schema> interfaces = ModelUtils.getInterfaces(composed);

@@ -1235,6 +1235,19 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
             }
         }
 
+        List<Object> models = (List<Object>) objs.get("models");
+        for (Object _mo : models) {
+            Map<String, Object> mo = (Map<String, Object>) _mo;
+            CodegenModel cm = (CodegenModel) mo.get("model");
+            cm.getVendorExtensions().putIfAbsent("x-implements", new ArrayList<String>());
+            List<String> impls = (List<String>) cm.getVendorExtensions().get("x-implements");
+            if (cm.inheritedTraits != null) {
+                for (String trait : cm.inheritedTraits) {
+                    impls.add(toModelName(trait + "Trait"));
+                }
+            }
+        }
+
         return postProcessModelsEnum(objs);
     }
 
